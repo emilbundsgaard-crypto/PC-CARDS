@@ -1,0 +1,28 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+#
+# Deploys the P-Card audit web app as a Node web service.
+#
+# The SQLite database (~145 MB) is too large for a single file in the repo, so
+# it is committed as split parts under data/db-parts/ and reassembled here at
+# build time. The build then verifies the reassembled file against the recorded
+# SHA-256 checksum before the app starts.
+#
+# Set GEMINI_API_KEY in the Render dashboard (it is marked sync:false, so Render
+# prompts for it and never stores it in this file or the repo).
+
+services:
+  - type: web
+    name: pccards
+    runtime: node
+    plan: free
+    buildCommand: |
+      npm install
+      npm run build
+      cat data/db-parts/pcards.db.part-* > data/pcards.db
+      echo "$(cat data/db-parts/pcards.db.sha256)  data/pcards.db" | sha256sum -c -
+    startCommand: npx next start -p $PORT
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: NODE_VERSION
+        value: "22"

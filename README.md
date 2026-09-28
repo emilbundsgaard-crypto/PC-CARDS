@@ -78,15 +78,31 @@ passed as bound parameters, never concatenated into SQL.
 
 ---
 
-## Deploying
+## Deploying (Render)
 
 This is a Node server (not a static site), so it needs a host that runs Node — a static
-host or plain web hotel will not work. Any Node host is fine; the two things every deploy
-needs are:
+host or plain web hotel will not work. This repo includes a [`render.yaml`](render.yaml)
+blueprint for [Render](https://render.com):
 
-1. **`GEMINI_API_KEY`** set as an environment variable on the host (never in the repo).
-2. **`data/pcards.db`** made available to the server. Because the file is too large for
-   the repo, fetch it at build time from wherever you keep it, or upload it to the host's
-   disk.
+1. On Render, choose **New → Blueprint** and connect this repository.
+2. Render reads `render.yaml` and provisions a free Node web service.
+3. When prompted, paste your **`GEMINI_API_KEY`** (from
+   https://aistudio.google.com/apikey). It is stored as a Render environment variable,
+   never in the repo.
+4. Deploy. The build reassembles the database and starts the app; Render gives you a
+   public URL.
 
-The database is opened read-only, so no writable storage is required at runtime.
+### How the database ships
+
+The SQLite database (~145 MB) exceeds GitHub's 100 MB file limit, so it is committed as
+split parts under [`data/db-parts/`](data/db-parts/) and reassembled at build time:
+
+```bash
+cat data/db-parts/pcards.db.part-* > data/pcards.db
+```
+
+The build verifies the reassembled file against `data/db-parts/pcards.db.sha256` before
+starting. The database is opened read-only, so no writable storage is required at runtime.
+
+> **Free-tier note:** Render's free web services sleep after inactivity and take a few
+> seconds to wake on the first request.
