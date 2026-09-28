@@ -17,9 +17,9 @@ services:
     plan: free
     buildCommand: |
       npm install
-      npm run build
       cat data/db-parts/pcards.db.part-* > data/pcards.db
       echo "$(cat data/db-parts/pcards.db.sha256)  data/pcards.db" | sha256sum -c -
+      npm run build
     startCommand: npx next start -p $PORT
     envVars:
       - key: GEMINI_API_KEY
