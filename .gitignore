@@ -1,0 +1,20 @@
+node_modules/
+.next/
+out/
+build/
+
+# Secrets — never commit the API key
+.env
+.env.local
+.env*.local
+
+# The database is 103 MB, over GitHub's 100 MB file limit.
+# See README.md for how to obtain and place it.
+data/*.db
+
+.DS_Store
+*.pem
+npm-debug.log*
+next-env.d.ts
+tsconfig.tsbuildinfo
+__pycache__/
